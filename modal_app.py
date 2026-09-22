@@ -57,7 +57,7 @@ SYSTEM_PROMPT = (
     "of a fact, say so rather than guessing."
 )
 
-app = modal.App("space-chatbot")
+app = modal.App("manned-t2")
 
 # ----------------------------------------------------------------------------
 # 4. Define the environment

@@ -1,321 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mission Control</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0e16;
-    --panel: #10161f;
-    --panel-2: #141c28;
-    --border: #223047;
-    --text: #e7ecf3;
-    --text-dim: #7c8aa0;
-    --amber: #ffb020;
-    --teal: #4fd1c5;
-    --red: #ff5c5c;
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-sans: 'IBM Plex Sans', sans-serif;
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-sans);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  header {
-    border-bottom: 1px solid var(--border);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    background: linear-gradient(180deg, #0d1320, #0a0e16);
-  }
-
-  .brand {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-
-  .brand-mark {
-    font-family: var(--font-mono);
-    color: var(--amber);
-    font-size: 13px;
-    letter-spacing: 0.14em;
-  }
-
-  h1 {
-    font-size: 17px;
-    margin: 0;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-
-  .status-line {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-dim);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--teal);
-    box-shadow: 0 0 6px var(--teal);
-  }
-  .dot.busy { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
-  .dot.err { background: var(--red); box-shadow: 0 0 6px var(--red); }
-
-  main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    padding: 24px 16px 120px;
-    overflow-y: auto;
-  }
-
-  .console {
-    width: 100%;
-    max-width: 720px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .intro {
-    border: 1px solid var(--border);
-    background: var(--panel);
-    border-radius: 6px;
-    padding: 16px 18px;
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.55;
-  }
-  .intro strong { color: var(--text); }
-
-  .entry {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-width: 88%;
-  }
-  .entry.user { align-self: flex-end; align-items: flex-end; }
-  .entry.bot { align-self: flex-start; align-items: flex-start; }
-
-  .meta {
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    letter-spacing: 0.06em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-  .entry.user .meta { color: var(--amber); }
-  .entry.bot .meta { color: var(--teal); }
-
-  .bubble {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 14.5px;
-    line-height: 1.55;
-    white-space: pre-wrap;
-  }
-  .entry.user .bubble { background: #17202e; }
-  .entry.bot .bubble { background: var(--panel); }
-
-  .thinking { color: var(--text-dim); font-style: italic; }
-
-  form {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-top: 1px solid var(--border);
-    background: linear-gradient(0deg, var(--bg) 60%, transparent);
-    padding: 16px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .input-row {
-    width: 100%;
-    max-width: 720px;
-    display: flex;
-    gap: 10px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 8px 8px 8px 14px;
-  }
-
-  input[type="text"] {
-    flex: 1;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: var(--font-sans);
-    font-size: 14.5px;
-  }
-  input[type="text"]::placeholder { color: var(--text-dim); }
-
-  button {
-    background: var(--amber);
-    color: #1a1200;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    font-weight: 600;
-    cursor: pointer;
-    text-transform: uppercase;
-  }
-  button:disabled { opacity: 0.5; cursor: not-allowed; }
-  button:not(:disabled):hover { filter: brightness(1.08); }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .entry { animation: rise 220ms ease-out; }
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#11110f" />
+  <title>manned — Qwen chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ink:#f4f0e8; --muted:#8e8a82; --quiet:#5c5952; --line:#292823; --panel:#151513; --panel-2:#1b1a17; --cream:#e8d9b5; --orange:#d98250; --green:#9bc7a2; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:#11110f; color:var(--ink); font-family:Manrope, sans-serif; }
+    button, textarea { font:inherit; }
+    .shell { min-height:100vh; display:grid; grid-template-columns:280px 1fr; }
+    .sidebar { border-right:1px solid var(--line); padding:28px 20px 22px; display:flex; flex-direction:column; background:#131310; }
+    .wordmark { display:flex; align-items:center; gap:10px; font-size:18px; font-weight:800; letter-spacing:-.04em; margin:0 8px 38px; }
+    .mark { width:23px; height:23px; border:1px solid var(--orange); border-radius:7px 7px 7px 2px; transform:rotate(-11deg); position:relative; }
+    .mark::after { content:""; position:absolute; width:7px; height:7px; border-radius:50%; background:var(--orange); top:7px; left:7px; }
+    .eyebrow { color:var(--quiet); font:500 10px 'DM Mono', monospace; letter-spacing:.15em; text-transform:uppercase; margin:0 8px 13px; }
+    .new-chat { width:100%; border:1px solid #3c3830; background:var(--panel-2); color:var(--ink); padding:11px 13px; border-radius:8px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:10px; font-size:13px; }
+    .new-chat:hover { border-color:var(--orange); }
+    .plus { color:var(--orange); font-size:19px; line-height:12px; }
+    .history { margin-top:30px; }
+    .history-item { display:block; width:100%; text-align:left; color:#bcb7ad; background:transparent; border:0; padding:9px 8px; border-radius:6px; cursor:pointer; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .history-item.active, .history-item:hover { color:var(--ink); background:#1b1a17; }
+    .sidebar-foot { margin-top:auto; border-top:1px solid var(--line); padding:17px 8px 0; color:var(--quiet); font:11px 'DM Mono', monospace; line-height:1.7; }
+    .status { display:flex; align-items:center; gap:7px; color:var(--green); margin-bottom:7px; }
+    .status-dot { width:6px; height:6px; background:var(--green); border-radius:50%; box-shadow:0 0 0 3px #223125; }
+    .main { display:flex; flex-direction:column; min-width:0; }
+    header { height:74px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; padding:0 42px; }
+    .model { display:flex; align-items:center; gap:10px; color:#c6c0b4; font-size:13px; }
+    .model-tag { border:1px solid #484137; border-radius:999px; padding:5px 9px; color:var(--cream); font:11px 'DM Mono', monospace; }
+    .top-actions { display:flex; align-items:center; gap:18px; color:var(--muted); font:11px 'DM Mono', monospace; }
+    .top-actions button { background:none; border:0; color:inherit; cursor:pointer; }
+    .top-actions button:hover { color:var(--ink); }
+    .chat { width:min(780px, calc(100% - 48px)); margin:0 auto; flex:1; padding:76px 0 170px; }
+    .welcome { margin-bottom:62px; }
+    .welcome-kicker { color:var(--orange); font:500 11px 'DM Mono', monospace; letter-spacing:.14em; text-transform:uppercase; margin-bottom:17px; }
+    h1 { margin:0; max-width:600px; font-size:clamp(34px, 5vw, 58px); line-height:1.02; letter-spacing:-.065em; font-weight:700; }
+    .welcome-copy { color:var(--muted); font-size:14px; line-height:1.7; max-width:475px; margin-top:20px; }
+    .suggestions { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; margin-top:32px; max-width:590px; }
+    .suggestion { padding:13px 14px; background:transparent; color:#aaa59b; border:1px solid var(--line); border-radius:8px; cursor:pointer; text-align:left; font-size:12px; line-height:1.45; }
+    .suggestion:hover { border-color:#655a4a; color:var(--ink); background:#171613; }
+    .message { display:flex; gap:15px; margin:33px 0; animation:rise .22s ease-out; }
+    .avatar { flex:0 0 28px; height:28px; border-radius:8px; display:grid; place-items:center; font:11px 'DM Mono', monospace; }
+    .message.user .avatar { background:#302b23; color:var(--cream); }
+    .message.assistant .avatar { background:var(--orange); color:#21160f; }
+    .message-body { min-width:0; color:#d4cfc5; font-size:14px; line-height:1.75; white-space:pre-wrap; padding-top:1px; }
+    .message-label { color:var(--quiet); font:10px 'DM Mono', monospace; letter-spacing:.1em; text-transform:uppercase; margin-bottom:5px; }
+    .composer-wrap { position:fixed; left:280px; right:0; bottom:0; padding:22px 24px 24px; background:linear-gradient(transparent, #11110f 30%); }
+    form { width:min(780px, calc(100% - 48px)); margin:0 auto; }
+    .composer { display:flex; align-items:flex-end; gap:10px; border:1px solid #48443b; background:#1a1916; border-radius:12px; padding:10px 10px 10px 15px; box-shadow:0 10px 36px #0004; }
+    textarea { resize:none; border:0; outline:0; background:transparent; color:var(--ink); flex:1; min-height:30px; max-height:140px; line-height:1.5; font-size:14px; padding:4px 0; }
+    textarea::placeholder { color:#716d64; }
+    .send { border:0; border-radius:8px; width:35px; height:35px; background:var(--cream); color:#282117; cursor:pointer; font-size:18px; line-height:1; }
+    .send:hover { background:#f5e8c7; } .send:disabled { opacity:.45; cursor:not-allowed; }
+    .hint { color:var(--quiet); text-align:right; font:10px 'DM Mono', monospace; margin-top:8px; }
+    @keyframes rise { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+    @media (max-width:760px) { .shell { display:block; } .sidebar { display:none; } header { padding:0 20px; height:64px; } .top-actions { display:none; } .chat { width:calc(100% - 36px); padding-top:48px; } .welcome { margin-bottom:40px; } .suggestions { grid-template-columns:1fr; } .composer-wrap { left:0; padding:16px 18px 18px; } form { width:100%; } h1 { font-size:42px; } }
+  </style>
 </head>
 <body>
-
-<header>
-  <div class="brand">
-    <span class="brand-mark">MSN-CTRL</span>
-    <h1>Mission Control</h1>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="wordmark"><span class="mark" aria-hidden="true"></span><span>manned</span></div>
+      <button class="new-chat" id="newChat"><span class="plus">+</span> New conversation</button>
+      <div class="history"><p class="eyebrow">Recent</p><button class="history-item active">Untitled conversation</button><button class="history-item">Understanding Qwen</button><button class="history-item">Ideas for a better day</button></div>
+      <div class="sidebar-foot"><div class="status"><span class="status-dot"></span> Qwen online</div><div>Private workspace<br />Built for thoughtful work</div></div>
+    </aside>
+    <section class="main">
+      <header><div class="model"><span class="model-tag">QWEN</span> Qwen 2.5 · 7B Instruct</div><div class="top-actions"><span id="clock">00:00</span><button id="clearChat">Clear chat</button></div></header>
+      <main class="chat" id="chat" aria-live="polite">
+        <div class="welcome" id="welcome"><div class="welcome-kicker">A considered conversation</div><h1>What can we<br /><span style="color:var(--orange)">figure out?</span></h1><p class="welcome-copy">manned is a focused space for thinking, making, and getting unstuck. Ask Qwen anything, or start with one of these.</p><div class="suggestions"><button class="suggestion">Help me think through a difficult decision</button><button class="suggestion">Explain a complex idea simply</button><button class="suggestion">Turn a rough thought into a plan</button><button class="suggestion">Give me a fresh perspective</button></div></div>
+      </main>
+      <div class="composer-wrap"><form id="chatForm"><div class="composer"><textarea id="messageInput" rows="1" placeholder="Message manned…" aria-label="Message manned"></textarea><button class="send" id="sendBtn" type="submit" aria-label="Send message">↑</button></div><div class="hint">Enter to send · Shift + Enter for new line</div></form></div>
+    </section>
   </div>
-  <div class="status-line">
-    <span class="dot" id="statusDot"></span>
-    <span id="statusText">link nominal</span>
-    <span id="clock" style="margin-left:8px;"></span>
-  </div>
-</header>
-
-<main>
-  <div class="console" id="console">
-    <div class="intro">
-      <strong>Ask about spacecraft, missions, and spaceflight.</strong>
-      Rockets, satellites, orbital mechanics, crewed and uncrewed missions, agencies, and mission history.
-      A human operator monitors this channel — off-topic questions will get redirected back to space.
-    </div>
-  </div>
-</main>
-
-<form id="chatForm">
-  <div class="input-row">
-    <input
-      type="text"
-      id="messageInput"
-      placeholder="Ask about a mission, spacecraft, or launch…"
-      autocomplete="off"
-      required
-    />
-    <button type="submit" id="sendBtn">Send</button>
-  </div>
-</form>
-
-<script>
-  const consoleEl = document.getElementById('console');
-  const form = document.getElementById('chatForm');
-  const input = document.getElementById('messageInput');
-  const sendBtn = document.getElementById('sendBtn');
-  const statusDot = document.getElementById('statusDot');
-  const statusText = document.getElementById('statusText');
-  const clockEl = document.getElementById('clock');
-
-  let history = [];
-
-  function tickClock() {
-    const now = new Date();
-    clockEl.textContent = 'UTC ' + now.toISOString().slice(11, 19);
-  }
-  tickClock();
-  setInterval(tickClock, 1000);
-
-  function addEntry(role, text) {
-    const entry = document.createElement('div');
-    entry.className = 'entry ' + (role === 'user' ? 'user' : 'bot');
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.textContent = role === 'user' ? 'You — uplink' : 'Mission Control — downlink';
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.textContent = text;
-    entry.appendChild(meta);
-    entry.appendChild(bubble);
-    consoleEl.appendChild(entry);
-    entry.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    return bubble;
-  }
-
-  function setStatus(mode) {
-    statusDot.className = 'dot' + (mode === 'busy' ? ' busy' : mode === 'err' ? ' err' : '');
-    statusText.textContent =
-      mode === 'busy' ? 'transmitting…' : mode === 'err' ? 'link error' : 'link nominal';
-  }
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = input.value.trim();
-    if (!text) return;
-
-    addEntry('user', text);
-    history.push({ role: 'user', content: text });
-    input.value = '';
-    input.disabled = true;
-    sendBtn.disabled = true;
-    setStatus('busy');
-
-    const bubble = addEntry('bot', '');
-    bubble.classList.add('thinking');
-    bubble.textContent = 'receiving telemetry…';
-
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: history }),
-      });
-      if (!res.ok) throw new Error('request failed: ' + res.status);
-      const data = await res.json();
-      bubble.classList.remove('thinking');
-      bubble.textContent = data.reply;
-      history.push({ role: 'assistant', content: data.reply });
-      setStatus('ok');
-    } catch (err) {
-      bubble.classList.remove('thinking');
-      bubble.textContent = 'Signal lost. The channel could not be reached — try again.';
-      setStatus('err');
-    } finally {
-      input.disabled = false;
-      sendBtn.disabled = false;
-      input.focus();
-    }
-  });
-</script>
-
+  <script>
+    const chat = document.getElementById('chat'), welcome = document.getElementById('welcome'), form = document.getElementById('chatForm'), input = document.getElementById('messageInput'), send = document.getElementById('sendBtn');
+    let history = [];
+    function addMessage(role, text) { const item = document.createElement('div'); item.className = `message ${role}`; item.innerHTML = `<div class="avatar">${role === 'user' ? 'YOU' : 'M'}</div><div class="message-body"><div class="message-label">${role === 'user' ? 'You' : 'manned · Qwen'}</div><div class="message-text"></div></div>`; item.querySelector('.message-text').textContent = text; chat.appendChild(item); item.scrollIntoView({behavior:'smooth', block:'end'}); return item.querySelector('.message-text'); }
+    function clock() { document.getElementById('clock').textContent = new Date().toISOString().slice(11,16) + ' UTC'; } clock(); setInterval(clock, 30000);
+    async function submit(text) { if (!text || send.disabled) return; welcome.hidden = true; addMessage('user', text); history.push({role:'user', content:text}); input.value=''; input.style.height='auto'; send.disabled=true; const response = addMessage('assistant', 'Thinking…'); response.style.color='var(--muted)'; try { const res = await fetch('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({messages:history})}); if (!res.ok) throw new Error(); const data = await res.json(); response.style.color=''; response.textContent=data.reply; history.push({role:'assistant',content:data.reply}); } catch(e) { response.style.color='var(--orange)'; response.textContent='I couldn’t reach Qwen right now. Check the service connection and try again.'; } finally { send.disabled=false; input.focus(); } }
+    form.addEventListener('submit', e => { e.preventDefault(); submit(input.value.trim()); }); input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent?.isComposing && e.keyCode !== 229) { e.preventDefault(); form.requestSubmit(); } }); input.addEventListener('input', () => { input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,140)+'px'; }); document.querySelectorAll('.suggestion').forEach(b => b.addEventListener('click',()=>{ input.value=b.textContent; input.focus(); })); document.getElementById('newChat').addEventListener('click',()=>location.reload()); document.getElementById('clearChat').addEventListener('click',()=>location.reload());
+  </script>
 </body>
 </html>

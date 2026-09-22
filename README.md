@@ -1,10 +1,21 @@
-# Mission Control — Qwen-powered space chatbot on Modal
+# Manned_T2 — manned Qwen chat
 
 A small FastAPI chat app, backed by a Qwen model served with vLLM, deployed
 as a single GPU container on Modal. Scoped to spacecraft/space questions via
 its system prompt. "Manned" in the sense that it's a single attended
 service you run and watch (logs, `modal app` dashboard) — not a
 multi-agent or autonomous system.
+
+## Google Cloud Run
+
+`cloud_run_app.py` is the Cloud Run entrypoint and `Dockerfile` uses the CUDA-enabled vLLM image. Build and deploy the `manned-t2` service with a GPU-enabled Cloud Run region:
+
+```bash
+gcloud builds submit --tag gcr.io/$GOOGLE_CLOUD_PROJECT/manned-t2
+gcloud run deploy manned-t2 --image gcr.io/$GOOGLE_CLOUD_PROJECT/manned-t2 --region us-central1 --gpu 1 --gpu-type nvidia-l4 --memory 24Gi --cpu 8 --timeout 3600 --no-cpu-throttling --allow-unauthenticated
+```
+
+Set `MODEL_NAME` and `SYSTEM_PROMPT` as Cloud Run environment variables if you want to change the model or assistant behavior. For local development, install `requirements.txt` inside a CUDA-enabled Python 3.11 environment, then run `uvicorn cloud_run_app:app --reload --port 8080`.
 
 ## Project structure
 
