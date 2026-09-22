@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e16;
+    --panel: #10161f;
+    --panel-2: #141c28;
+    --border: #223047;
+    --text: #e7ecf3;
+    --text-dim: #7c8aa0;
+    --amber: #ffb020;
+    --teal: #4fd1c5;
+    --red: #ff5c5c;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: linear-gradient(180deg, #0d1320, #0a0e16);
+  }
+
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    font-family: var(--font-mono);
+    color: var(--amber);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+  }
+
+  h1 {
+    font-size: 17px;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .status-line {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 6px var(--teal);
+  }
+  .dot.busy { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .dot.err { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 24px 16px 120px;
+    overflow-y: auto;
+  }
+
+  .console {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .intro {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.55;
+  }
+  .intro strong { color: var(--text); }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: 88%;
+  }
+  .entry.user { align-self: flex-end; align-items: flex-end; }
+  .entry.bot { align-self: flex-start; align-items: flex-start; }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .entry.user .meta { color: var(--amber); }
+  .entry.bot .meta { color: var(--teal); }
+
+  .bubble {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+  }
+  .entry.user .bubble { background: #17202e; }
+  .entry.bot .bubble { background: var(--panel); }
+
+  .thinking { color: var(--text-dim); font-style: italic; }
+
+  form {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(0deg, var(--bg) 60%, transparent);
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .input-row {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    gap: 10px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 8px 8px 14px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+  }
+  input[type="text"]::placeholder { color: var(--text-dim); }
+
+  button {
+    background: var(--amber);
+    color: #1a1200;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:not(:disabled):hover { filter: brightness(1.08); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .entry { animation: rise 220ms ease-out; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-mark">MSN-CTRL</span>
+    <h1>Mission Control</h1>
+  </div>
+  <div class="status-line">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">link nominal</span>
+    <span id="clock" style="margin-left:8px;"></span>
+  </div>
+</header>
+
+<main>
+  <div class="console" id="console">
+    <div class="intro">
+      <strong>Ask about spacecraft, missions, and spaceflight.</strong>
+      Rockets, satellites, orbital mechanics, crewed and uncrewed missions, agencies, and mission history.
+      A human operator monitors this channel — off-topic questions will get redirected back to space.
+    </div>
+  </div>
+</main>
+
+<form id="chatForm">
+  <div class="input-row">
+    <input
+      type="text"
+      id="messageInput"
+      placeholder="Ask about a mission, spacecraft, or launch…"
+      autocomplete="off"
+      required
+    />
+    <button type="submit" id="sendBtn">Send</button>
+  </div>
+</form>
+
+<script>
+  const consoleEl = document.getElementById('console');
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const clockEl = document.getElementById('clock');
+
+  let history = [];
+
+  function tickClock() {
+    const now = new Date();
+    clockEl.textContent = 'UTC ' + now.toISOString().slice(11, 19);
+  }
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  function addEntry(role, text) {
+    const entry = document.createElement('div');
+    entry.className = 'entry ' + (role === 'user' ? 'user' : 'bot');
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = role === 'user' ? 'You — uplink' : 'Mission Control — downlink';
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+    entry.appendChild(meta);
+    entry.appendChild(bubble);
+    consoleEl.appendChild(entry);
+    entry.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    return bubble;
+  }
+
+  function setStatus(mode) {
+    statusDot.className = 'dot' + (mode === 'busy' ? ' busy' : mode === 'err' ? ' err' : '');
+    statusText.textContent =
+      mode === 'busy' ? 'transmitting…' : mode === 'err' ? 'link error' : 'link nominal';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    addEntry('user', text);
+    history.push({ role: 'user', content: text });
+    input.value = '';
+    input.disabled = true;
+    sendBtn.disabled = true;
+    setStatus('busy');
+
+    const bubble = addEntry('bot', '');
+    bubble.classList.add('thinking');
+    bubble.textContent = 'receiving telemetry…';
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+      if (!res.ok) throw new Error('request failed: ' + res.status);
+      const data = await res.json();
+      bubble.classList.remove('thinking');
+      bubble.textContent = data.reply;
+      history.push({ role: 'assistant', content: data.reply });
+      setStatus('ok');
+    } catch (err) {
+      bubble.classList.remove('thinking');
+      bubble.textContent = 'Signal lost. The channel could not be reached — try again.';
+      setStatus('err');
+    } finally {
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+</script>
+
+</body>
+</html>
