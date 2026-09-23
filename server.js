@@ -5,8 +5,9 @@ import { fileURLToPath } from "node:url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const port = Number(process.env.PORT || 8080)
-const model = process.env.QWEN_MODEL || "qwen2.5-7b-instruct"
+const model = process.env.QWEN_MODEL || "qwen-plus"
 const baseUrl = (process.env.QWEN_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1").replace(/\/$/, "")
+const systemPrompt = process.env.SYSTEM_PROMPT || "You are manned, a thoughtful space companion for interstellar travel and space questions. Be clear, warm, concise, scientifically grounded, and honest about uncertainty. Keep the conversation focused on space when appropriate."
 
 app.use(express.json({ limit: "1mb" }))
 const staticDir = path.join(__dirname, "static")
@@ -26,7 +27,7 @@ app.post("/api/chat", async (req, res) => {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.QWEN_API_KEY}` },
       body: JSON.stringify({
         model,
-        messages: [{ role: "system", content: "You are manned, a thoughtful and capable AI assistant. Be clear, warm, concise, and honest about uncertainty." }, ...messages],
+        messages: [{ role: "system", content: systemPrompt }, ...messages],
         temperature: 0.7,
         top_p: 0.9,
         max_tokens: Math.min(Number(req.body?.max_tokens || 512), 2048),
