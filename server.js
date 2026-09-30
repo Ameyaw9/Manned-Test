@@ -5,15 +5,15 @@ import { fileURLToPath } from "node:url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const port = Number(process.env.PORT || 8080)
-const model = process.env.QWEN_MODEL || "qwen-plus"
-const baseUrl = (process.env.QWEN_BASE_URL || "https://dashscope.aliyuncs.com/compatible-mode/v1").replace(/\/$/, "")
-const apiKey = (process.env.QWEN_API_KEY || process.env.DASHSCOPE_API_KEY || "")
+const model = process.env.QWEN_MODEL || "qwen/qwen3-32b"
+const baseUrl = (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, "")
+const apiKey = (process.env.OPENROUTER_API_KEY || process.env.QWEN_API_KEY || "")
   .trim()
   .replace(/^['\"]|['\"]$/g, "")
 const systemPrompt = process.env.SYSTEM_PROMPT || "You are manned, a thoughtful space companion for interstellar travel and space questions. Be clear, warm, concise, scientifically grounded, and honest about uncertainty. Keep the conversation focused on space when appropriate."
 
 function configurationError() {
-  return "Qwen is not connected yet. Set a valid DashScope QWEN_API_KEY in the environment, then restart the Node server."
+  return "Your space companion is not connected yet. Set an OpenRouter API key as QWEN_API_KEY, then restart the Node server."
 }
 
 app.use(express.json({ limit: "1mb" }))
