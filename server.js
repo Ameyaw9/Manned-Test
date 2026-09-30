@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const port = Number(process.env.PORT || 8080)
-const model = process.env.QWEN_MODEL || "qwen/qwen3-32b"
+const model = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free"
 const baseUrl = (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, "")
 const apiKey = (process.env.OPENROUTER_API_KEY || process.env.QWEN_API_KEY || "")
   .trim()
@@ -13,7 +13,7 @@ const apiKey = (process.env.OPENROUTER_API_KEY || process.env.QWEN_API_KEY || ""
 const systemPrompt = process.env.SYSTEM_PROMPT || "You are manned, a thoughtful space companion for interstellar travel and space questions. Be clear, warm, concise, scientifically grounded, and honest about uncertainty. Keep the conversation focused on space when appropriate."
 
 function configurationError() {
-  return "Your space companion is not connected yet. Set an OpenRouter API key as QWEN_API_KEY, then restart the Node server."
+  return "Your space companion is not connected yet. Set your OpenRouter API key as QWEN_API_KEY, then restart the Node server."
 }
 
 app.use(express.json({ limit: "1mb" }))
@@ -44,12 +44,12 @@ app.post("/api/chat", async (req, res) => {
     const data = await response.json().catch(() => ({}))
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
-        return res.status(502).json({ error: "Qwen rejected the API key. Use an active DashScope key from Alibaba Model Studio, save it as QWEN_API_KEY, and restart the Node server." })
+        return res.status(502).json({ error: "OpenRouter rejected the API key. Use an active OpenRouter key, save it as QWEN_API_KEY, and restart the Node server." })
       }
       return res.status(response.status).json({ error: data?.error?.message || "Qwen request failed" })
     }
     const reply = data.choices?.[0]?.message?.content?.trim()
-    if (!reply) return res.status(502).json({ error: "Qwen returned an empty response. Check the selected model and API account." })
+    if (!reply) return res.status(502).json({ error: "OpenRouter returned an empty response. Check the selected model and API account." })
     res.json({ reply })
   } catch (error) {
     console.error("[manned] Qwen request failed", error)
