@@ -1,9 +1,0 @@
-# Local dev / reference only.
-# The Modal Image in modal_app.py installs the matching versions remotely —
-# you don't need a GPU or CUDA locally to develop this project.
-
-modal>=0.65.0
-vllm==0.6.3.post1
-fastapi[standard]==0.115.4
-huggingface_hub[hf_transfer]==0.26.2
-transformers==4.46.2
