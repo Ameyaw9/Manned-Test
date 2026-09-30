@@ -46,7 +46,7 @@ app.post("/api/chat", async (req, res) => {
       if (response.status === 401 || response.status === 403) {
         return res.status(502).json({ error: "OpenRouter rejected the API key. Use an active OpenRouter key, save it as OPENROUTER_API_KEY, and restart the Node server." })
       }
-      return res.status(response.status).json({ error: data?.error?.message || "Qwen request failed" })
+      return res.status(response.status).json({ error: data?.error?.message || "OpenRouter request failed" })
     }
     const reply = data.choices?.[0]?.message?.content?.trim()
     if (!reply) return res.status(502).json({ error: "OpenRouter returned an empty response. Check the selected model and API account." })
