@@ -58,9 +58,11 @@ app.post("/api/chat", async (req, res) => {
 })
 
 app.get("/{*splat}", (_req, res) => res.sendFile(path.join(__dirname, "static", "index.html")))
-app.listen(port, "0.0.0.0", () => console.log(`[manned] listening on ${port}`))
+if (!process.env.VERCEL) {
+  app.listen(port, "0.0.0.0", () => console.log(`[manned] listening on ${port}`))
 
-process.on("SIGTERM", () => process.exit(0))
-process.on("SIGINT", () => process.exit(0))
+  process.on("SIGTERM", () => process.exit(0))
+  process.on("SIGINT", () => process.exit(0))
+}
 
 export default app
