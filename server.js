@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url"
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const app = express()
 const port = Number(process.env.PORT || 8080)
-const model = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-ultra-550b-a55b:free"
+const model = "openrouter/free"
 const baseUrl = (process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1").replace(/\/$/, "")
 const apiKey = (process.env.OPENROUTER_API_KEY || process.env.QWEN_API_KEY || "")
   .trim()
@@ -42,18 +42,25 @@ app.post("/api/chat", async (req, res) => {
       }),
     })
     const data = await response.json().catch(() => ({}))
+    const providerError = data?.error
+    const providerErrorMessage = typeof providerError === "string"
+      ? providerError
+      : providerError?.message || providerError?.code || data?.message || "OpenRouter request failed"
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
         return res.status(502).json({ error: "OpenRouter rejected the API key. Use an active OpenRouter key, save it as OPENROUTER_API_KEY, and restart the Node server." })
       }
-      return res.status(response.status).json({ error: data?.error?.message || "OpenRouter request failed" })
+      return res.status(response.status).json({ error: String(providerErrorMessage) })
     }
-    const reply = data.choices?.[0]?.message?.content?.trim()
+    const content = data?.choices?.[0]?.message?.content
+    const reply = Array.isArray(content)
+      ? content.map((part) => typeof part === "string" ? part : part?.text || "").join("").trim()
+      : typeof content === "string" ? content.trim() : content?.text ? String(content.text).trim() : ""
     if (!reply) return res.status(502).json({ error: "OpenRouter returned an empty response. Check the selected model and API account." })
     res.json({ reply })
   } catch (error) {
-    console.error("[manned] Qwen request failed", error)
-    res.status(502).json({ error: "Unable to reach Qwen" })
+    console.error("[manned] OpenRouter request failed", error)
+    res.status(502).json({ error: "Unable to reach OpenRouter. Check the API key, model availability, and network connection." })
   }
 })
 
